@@ -84,7 +84,8 @@ def _pageDataTweets():
         # Dapatkan file .csv yang menyimpan data tweet
         df = get_csv("./data/dataframe/tweets.csv", delimiter= ";")
         # Tampilkan DataFrame dari data yang telah didapatkan
-        st.dataframe(df, height= 600, use_container_width= True, hide_index= True)
+        st.dataframe(df, height= 600, use_container_width= True,
+                     hide_index= True)
     except Exception as e:
         _exceptionMessage(e)
 #-------------------------------------------------------------------------------

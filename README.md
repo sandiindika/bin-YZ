@@ -5,12 +5,12 @@
 
   - Fork dan Clone repository
     ```
-    $ git clone https://github.com/sandiindika/4fun-ADC.git
+    $ git clone https://github.com/sandiindika/4fun-YZ.git
     ```
   
   - Pergi ke main repository
     ```
-    $ cd 4fun-ADC
+    $ cd 4fun-YZ
     ```
 
   - Pastikan kamu memiliki `pip` yang telah  terinstal. Jika belum, instal `pip` terlebih dahulu [disini](https://pip.pypa.io/en/stable/installation/).
