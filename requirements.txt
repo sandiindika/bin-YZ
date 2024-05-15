@@ -1,0 +1,3 @@
+setuptools
+streamlit
+streamlit-option-menu
