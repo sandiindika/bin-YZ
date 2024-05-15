@@ -70,6 +70,7 @@ def _pageBeranda():
     except Exception as e:
         _exceptionMessage(e)
 
+# Halaman data tweets
 def _pageDataTweets():
     """Page data twwets
     
@@ -105,7 +106,7 @@ with st.container():
         ms_60()
         show_caption("Copyright © 2024 | Yafi Zafran", size= 5)
 
-    # Halaman beranda
+    # Branching halaman yang ditampilkan
     if selected == menu_[0]:
         _pageBeranda()
     elif selected == menu_[1]:
