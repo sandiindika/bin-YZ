@@ -2,9 +2,10 @@
 
 import streamlit as st
 
-import os, itertools
+import os, itertools, re
 
 import pandas as pd
+import emoji
 import matplotlib.pyplot as plt
 from PIL import Image
 
@@ -150,4 +151,62 @@ def mk_dir(dirpath):
 
 # CUSTOM FUNCTIONS
 
+# Fungsi text cleaning
+def text_cleaning(tweet: str):
+    """Text cleaning
+
+    Membersihkan teks tweet dari berbagai karakter yang dianggap tidak berguna
+    dalam proses ekstraksi informasi nantinya.
+
+    Fungsi ini akan melakukan pembersihan teks dengan langkah-langkah berikut:
+    1. Menghapus URL.
+    2. Menghapus mentions (@username).
+    3. Menghapus hashtag.
+    4. Menghapus karakter escape.
+    5. Menghapus angka.
+    6. Menghapus tanda baca.
+    7. Menghapus emotikon.
+    8. Menghapus karakter khusus.
+    9. Menghapus karakter tunggal.
+    10. Menghapus spasi berlebih.
+    11. Menghapus tanda hubung jika berdiri sendiri.
+    12. Mengubah semua teks menjadi LowerCase.
+
+    Parameters
+    ----------
+    tweet : str
+        Teks tweet yang akan dibersihkan.
+
+    Returns
+    -------
+    self : str
+        Teks tweet yang telah dibersihkan.
+    """
+    # Menghapus URL
+    tweet = re.sub(r"http\S+|www\S+|https\S+", "", tweet, flags= re.MULTILINE)
+    # Menghapus mentions (@username)
+    tweet = re.sub(r"@\w+", "", tweet)
+    # Menghapus hashtag
+    tweet = re.sub(r"#(\w+)", "", tweet)
+    # Menghapus semua karakter escape
+    tweet = re.sub(r"\\[tnufr]", " ", tweet)
+    # Menghapus angka
+    tweet = re.sub(r"\d+", "", tweet)
+    # Menghapus tanda baca
+    tweet = re.sub("[%s]" % re.escape("[!\"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~]"), \
+                    "", tweet)
+    # Menghapus emoticon
+    tweet = emoji.replace_emoji(tweet, replace= "")
+    # Menghapus karakter khusus
+    tweet = re.sub(r'[^\x00-\x7F]+', '', tweet)
+    # Menghapus karakter tunggal
+    tweet = re.sub(r"\b[a-zA-Z]\b", "", tweet)
+    # Menghapus spasi berlebih
+    tweet = " ".join(tweet.split())
+    # Menghapus tanda hubung jika berdiri sendiri
+    tweet = re.sub(r"\b - \b|\b -\b|\b- \b", " ", tweet)
+    # Mengubah semua teks menjadi LowerCase
+    tweet = tweet.lower()
+
+    return tweet
 #-------------------------------------------------------------------------------

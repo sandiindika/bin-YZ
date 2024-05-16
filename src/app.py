@@ -31,7 +31,7 @@ with open("./css/style.css") as f:
     st.markdown("<style>{}</style>".format(f.read()), unsafe_allow_html= True)
 
 # Params setting
-message = False
+message = True
 menu_ = ["Beranda", "Data Tweets", "Pemrosesan Teks", "Pembobotan Teks"]
 icons_ = ["house", "database", "code-slash", "layout-text-sidebar"]
 
@@ -48,7 +48,8 @@ def _exceptionMessage(e):
     with ml_center():
         # Tampilkan pesan galat jika kondisi memenuhi
         st.error("Terjadi masalah...")
-        st.exception(e) if message else None
+        if message:
+            st.exception(e)
 
 # Halaman beranda
 def _pageBeranda():
@@ -88,6 +89,35 @@ def _pageDataTweets():
                      hide_index= True)
     except Exception as e:
         _exceptionMessage(e)
+
+# Halaman Pemrosesan Teks
+def _pageTextPreprocessing():
+    """Page pemrosesan teks
+
+    Halaman ini akan menampilkan data tweets yang telah di proses untuk setiap
+    tahapan sesuai dengan alur dalam pemrosesan teks.
+    """
+    try:
+        ms_20()
+        show_title("Pemrosesan Teks", division= True)
+        ms_40()
+        # Dapatkan file .csv yang menyimpan data tweet
+        ori_text = get_csv("./data/dataframe/tweets.csv", delimiter= ";")
+        # Buat DataFrame untuk menampung hasil pemrosesan teks
+        pre_text = pd.DataFrame()
+        with st.expander("**Original Tweets**", expanded= True):
+            # Tampilkan DataFrame untuk teks tweet sebelum text cleaning
+            st.dataframe(ori_text.iloc[:, 0], height= 500,
+                         use_container_width= True, hide_index= True)
+        with st.expander("**Text Cleaning**"):
+            # Pemrosesan text cleaning
+            pre_text["text_cleaning"] = ori_text.iloc[:, 0].apply(text_cleaning)
+            # Tampilkan DataFrame untuk teks tweet setelah text cleaning
+            st.dataframe(pre_text, height= 500, use_container_width= True,
+                         hide_index= True)
+
+    except Exception as e:
+        _exceptionMessage(e)
 #-------------------------------------------------------------------------------
 # Body
 with st.container():
@@ -112,3 +142,5 @@ with st.container():
         _pageBeranda()
     elif selected == menu_[1]:
         _pageDataTweets()
+    elif selected == menu_[2]:
+        _pageTextPreprocessing()

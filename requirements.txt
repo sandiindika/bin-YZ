@@ -1,6 +1,7 @@
 pandas
 matplotlib
 setuptools
+emoji
 Sastrawi
 nltk
 scikit-learn
