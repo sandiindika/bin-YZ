@@ -83,7 +83,7 @@ def _pageDataTweets():
         show_title("Data Tweets", division= True)
         ms_40()
         # Dapatkan file .csv yang menyimpan data tweet
-        df = get_csv("./data/dataframe/tweets.csv", delimiter= ";")
+        df = get_csv("./data/dataset/tweets.csv", delimiter= ";")
         # Tampilkan DataFrame dari data yang telah didapatkan
         st.dataframe(df, height= 600, use_container_width= True,
                      hide_index= True)
@@ -102,7 +102,7 @@ def _pageTextPreprocessing():
         show_title("Pemrosesan Teks", division= True)
         ms_40()
         # Dapatkan file .csv yang menyimpan data tweet
-        ori_text = get_csv("./data/dataframe/tweets.csv", delimiter= ";")
+        ori_text = get_csv("./data/dataset/tweets.csv", delimiter= ";")
         # Buat DataFrame untuk menampung hasil pemrosesan teks
         pre_text = pd.DataFrame()
         with st.expander("**Original Tweets**", expanded= True):
@@ -115,6 +115,8 @@ def _pageTextPreprocessing():
             # Tampilkan DataFrame untuk teks tweet setelah text cleaning
             st.dataframe(pre_text, height= 500, use_container_width= True,
                          hide_index= True)
+            # Simpan unique word untuk identifikasi lebih lanjut
+            write_unique_words(pre_text["text_cleaning"].values)
 
     except Exception as e:
         _exceptionMessage(e)

@@ -2,11 +2,11 @@
 
 import streamlit as st
 
-import os, itertools, re
+import os, re, csv
+from collections import defaultdict
 
 import pandas as pd
 import emoji
-import matplotlib.pyplot as plt
 from PIL import Image
 
 import nltk
@@ -151,7 +151,24 @@ def mk_dir(dirpath):
 
 # CUSTOM FUNCTIONS
 
-# Fungsi text cleaning
+def write_unique_words(arr):
+    """
+    """
+    # Buat dictionary untuk menyimpan jumlah kemunculan setiap kata
+    word_counts = defaultdict(int)
+    for text in arr:
+        # Pisahkan teks menjadi kata-kata individual
+        words = text.split()
+        # Hitung jumlah kemunculan setiap kata
+        for word in words:
+            word_counts[word] += 1
+    # Tulis semua informasi yang didapat ke dalam file CSV
+    with open("./data/corpus/word_counts.csv", "w", newline= "", encoding= "utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Word", "Count"])
+        for word, count in word_counts.items():
+            writer.writerow([word, count])
+
 def text_cleaning(tweet: str):
     """Text cleaning
 
