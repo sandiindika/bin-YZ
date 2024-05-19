@@ -117,6 +117,8 @@ def _pageTextPreprocessing():
                          hide_index= True)
             # Simpan unique word untuk identifikasi lebih lanjut
             write_unique_words(pre_text["text_cleaning"].values)
+        with st.expander("**Slang-words Removal**"):
+            ms_20()
 
     except Exception as e:
         _exceptionMessage(e)

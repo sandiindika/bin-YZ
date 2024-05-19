@@ -7,6 +7,7 @@ from collections import defaultdict
 
 import pandas as pd
 import emoji
+import swifter
 from PIL import Image
 
 import nltk
@@ -152,7 +153,15 @@ def mk_dir(dirpath):
 # CUSTOM FUNCTIONS
 
 def write_unique_words(arr):
-    """
+    """Menghitung kata unik
+
+    Fungsi ini digunakan untuk memetakan fitur yang ada dalam kumpulan tweet dan
+    menghitung frekuensi masing-masing fiturnya.
+
+    Parameters
+    ----------
+    arr : ndarray
+        Array yang memuat data tweet yang akan diolah.
     """
     # Buat dictionary untuk menyimpan jumlah kemunculan setiap kata
     word_counts = defaultdict(int)
@@ -163,7 +172,8 @@ def write_unique_words(arr):
         for word in words:
             word_counts[word] += 1
     # Tulis semua informasi yang didapat ke dalam file CSV
-    with open("./data/corpus/word_counts.csv", "w", newline= "", encoding= "utf-8") as f:
+    with open("./data/corpus/word_counts.csv", "w", newline= "", encoding= \
+              "utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["Word", "Count"])
         for word, count in word_counts.items():
@@ -226,4 +236,15 @@ def text_cleaning(tweet: str):
     tweet = tweet.lower()
 
     return tweet
+
+def remv_slang(data):
+    """
+    """
+    try:
+        corpus = pd.read_csv("./data/corpus/slang_word.csv")
+    except Exception as e:
+        ms_20()
+        with ml_center():
+            # Tampilkan pesan galat jika kondisi memenuhi
+            st.exception(e)
 #-------------------------------------------------------------------------------
