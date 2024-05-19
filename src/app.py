@@ -113,11 +113,23 @@ def _pageTextPreprocessing():
             # Pemrosesan text cleaning
             pre_text["text_cleaning"] = ori_text.iloc[:, 0].apply(text_cleaning)
             # Tampilkan DataFrame untuk teks tweet setelah text cleaning
-            st.dataframe(pre_text, height= 500, use_container_width= True,
-                         hide_index= True)
+            st.dataframe(pre_text["text_cleaning"], height= 500,
+                         use_container_width= True, hide_index= True)
             # Simpan unique word untuk identifikasi lebih lanjut
             write_unique_words(pre_text["text_cleaning"].values)
         with st.expander("**Slang-words Removal**"):
+            # Pemrosesan slang-word removal
+            pre_text["slang_removal"] = remv_slang(pre_text["text_cleaning"])
+            # Tampilkan DataFrame untuk teks tweet setelah slang-word removal
+            st.dataframe(pre_text["slang_removal"], height= 500,
+                         use_container_width= True, hide_index= True)
+        with st.expander("**Tokenization**"):
+            ms_20()
+        with st.expander("**Stemming/Lemmatization**"):
+            ms_20()
+        with st.expander("**Stopword Removal**"):
+            ms_20()
+        with st.expander("**Final Result**"):
             ms_20()
 
     except Exception as e:

@@ -153,15 +153,16 @@ def mk_dir(dirpath):
 # CUSTOM FUNCTIONS
 
 def write_unique_words(arr):
-    """Menghitung kata unik
+    """Menghitung kata unik dan menyimpan frekuensinya ke file CSV
 
-    Fungsi ini digunakan untuk memetakan fitur yang ada dalam kumpulan tweet dan
-    menghitung frekuensi masing-masing fiturnya.
+    Fungsi ini digunakan untuk memetakan fitur (kata) yang ada dalam kumpulan
+    tweet dan menghitung frekuensi masing-masing kata tersebut. Hasilnya
+    disimpan dalam file CSV.
 
     Parameters
     ----------
     arr : ndarray
-        Array yang memuat data tweet yang akan diolah.
+        Array yang memuat data tweet (teks) yang akan diolah.
     """
     # Buat dictionary untuk menyimpan jumlah kemunculan setiap kata
     word_counts = defaultdict(int)
@@ -239,12 +240,47 @@ def text_cleaning(tweet: str):
 
 def remv_slang(data):
     """
+    Mengganti slang-word dengan kata-kata yang sesuai berdasarkan kamus
+    slang-word.
+
+    Parameters
+    ----------
+    data : pandas.Series
+        Series yang memuat teks yang akan diolah.
+
+    Returns
+    -------
+    res : pandas.Series
+        Series yang sudah dihilangkan slang word-nya.
+#-------------------------------------------------------------------------------
     """
-    try:
-        corpus = pd.read_csv("./data/corpus/slang_word.csv")
-    except Exception as e:
-        ms_20()
-        with ml_center():
-            # Tampilkan pesan galat jika kondisi memenuhi
-            st.exception(e)
+    # Dapatkan file dari kamus slang-word
+    corpus = pd.read_csv("./data/corpus/slang_word.csv", delimiter= ";")
+    # Dictionary kosong untuk menampung slang-word
+    slangs = {}
+    # Isi dictionary slang-word
+    for index, word in corpus.iterrows():
+        if word[0] not in slangs:
+            slangs[word[0]] = str(word[1])
+
+    # Function untuk menghilangkan slang-word
+    def slangs_remover(document):
+        """
+        Mengganti slang-word di dalam dokumen dengan kata yang sesuai.
+
+        Parameters
+        ----------
+        document : str
+            Teks yang akan diolah.
+        
+        Returns
+        -------
+        str
+            Teks yang sudah dihilangkan slang word-nya
+        """
+        return " ".join([slangs[word] if word in slangs else word for word in \
+                         document.split()])
+    
+    # Terapkan fungsi slangs_remover ke setiap elemen di data
+    return data.apply(slangs_remover)
 #-------------------------------------------------------------------------------
