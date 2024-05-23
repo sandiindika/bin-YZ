@@ -10,7 +10,10 @@ import emoji
 import swifter
 from PIL import Image
 
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+
 import nltk
+from nltk.tokenize import word_tokenize
 
 nltk.download("punkt")
 nltk.download("stopwords")
@@ -252,7 +255,6 @@ def remv_slang(data):
     -------
     res : pandas.Series
         Series yang sudah dihilangkan slang word-nya.
-#-------------------------------------------------------------------------------
     """
     # Dapatkan file dari kamus slang-word
     corpus = pd.read_csv("./data/corpus/slang_word.csv", delimiter= ";")
@@ -283,4 +285,41 @@ def remv_slang(data):
     
     # Terapkan fungsi slangs_remover ke setiap elemen di data
     return data.apply(slangs_remover)
+
+def stemming(data):
+    """Stemming
+
+    Mengubah kata menjadi bentuk dasarnya.
+
+    Parameters
+    ----------
+    data : pandas.Series
+        Series yang memuat teks yang akan distemming.
+
+    Returns
+    -------
+    res : pandas.Series
+        Series yang sudah distemming.
+    """
+    # Inisialisasi objek stemmer
+    factory = StemmerFactory()
+    stemmer = factory.create_stemmer()
+
+    # Stemmed
+    def stemmed_wrapper(term):
+        return stemmer.stem(term)
+    
+    corpus = {} # Buat corpus untuk kamus kata
+    for document in data:
+        for term in document:
+            if term not in corpus:
+                corpus[term] = " "
+
+    for term in corpus:
+        corpus[term] = stemmed_wrapper(term)
+
+    def get_stemmed_term(document):
+        return [corpus[term] for term in document]
+    
+    return data.swifter.apply(get_stemmed_term)
 #-------------------------------------------------------------------------------

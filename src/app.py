@@ -124,9 +124,19 @@ def _pageTextPreprocessing():
             st.dataframe(pre_text["slang_removal"], height= 500,
                          use_container_width= True, hide_index= True)
         with st.expander("**Tokenization**"):
-            ms_20()
+            # Pemrosesan tokenization
+            pre_text["tokenization"] = pre_text["slang_removal"].apply(lambda \
+                                        x: word_tokenize(x))
+            # Tampilkan DataFrame untuk teks tweet setelah tokenisasi
+            st.dataframe(pre_text["tokenization"], height= 500,
+                         use_container_width= True, hide_index= True)
         with st.expander("**Stemming/Lemmatization**"):
-            ms_20()
+            with st.spinner("Please wait..."):
+                # Pemrosesan stemming
+                pre_text["stemming"] = stemming(pre_text["tokenization"])
+            # Tampilkan DataFrame untuk teks tweet setelah proses stemming
+            st.dataframe(pre_text["stemming"], height= 500,
+                         use_container_width= True, hide_index= True)
         with st.expander("**Stopword Removal**"):
             ms_20()
         with st.expander("**Final Result**"):
