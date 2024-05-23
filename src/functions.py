@@ -14,6 +14,7 @@ from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
 import nltk
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 
 nltk.download("punkt")
 nltk.download("stopwords")
@@ -286,6 +287,7 @@ def remv_slang(data):
     # Terapkan fungsi slangs_remover ke setiap elemen di data
     return data.apply(slangs_remover)
 
+@st.cache_data(ttl=3600, show_spinner="Fetching data corpus...")
 def stemming(data):
     """Stemming
 
@@ -298,28 +300,77 @@ def stemming(data):
 
     Returns
     -------
-    res : pandas.Series
+    pandas.Series
         Series yang sudah distemming.
     """
     # Inisialisasi objek stemmer
     factory = StemmerFactory()
     stemmer = factory.create_stemmer()
 
-    # Stemmed
+    # Daftar kata yang ingin dikecualikan dari stemming
+    exceptions = {"pemilu"}
+
+    # Fungsi pembungkus untuk stemming
     def stemmed_wrapper(term):
-        return stemmer.stem(term)
+        """
+        Melakukan stemming pada sebuah kata.
+
+        Parameters
+        ----------
+        term : str
+            Kata yang akan distemming.
+
+        Returns
+        -------
+        str
+            Kata yang sudah distemming.
+        """
+        if term in exceptions:
+            return term
+        else:
+            return stemmer.stem(term)
     
-    corpus = {} # Buat corpus untuk kamus kata
+    # Membuat corpus untuk kamus kata
+    corpus = {}
     for document in data:
         for term in document:
             if term not in corpus:
                 corpus[term] = " "
 
+    # Melakukan stemming pada setiap kata dalam corpus
     for term in corpus:
         corpus[term] = stemmed_wrapper(term)
 
+    # Fungsi untuk mengganti kata dalam dokumen dengan bentuk stemmed
     def get_stemmed_term(document):
+        """
+        Mengganti kata dalam dokumen dengan bentuk stemmed.
+
+        Parameters
+        ----------
+        document : list of str
+            Dokumen yang berisi kata-kata.
+
+        Returns
+        -------
+        list of str
+            Dokumen dengan kata-kata yang sudah distemming.
+        """
         return [corpus[term] for term in document]
-    
+    # Menerapkan stemming pada setiap dokumen
     return data.swifter.apply(get_stemmed_term)
+
+def stopword_removal(data):
+    nltk_corpus = stopwords.words("indonesian")
+    self_corpus = pd.read_csv("./data/corpus/stopwords.txt",
+                              names= ["stopword"], header= None)
+    for i in range(len(self_corpus)):
+        nltk_corpus.extend(self_corpus["stopword"][i].split(" "))
+    
+    corpus = set(nltk_corpus)
+
+    def stopwords_removal(words):
+        return [word for word in words if word not in corpus]
+    
+    return data.apply(stopwords_removal)
 #-------------------------------------------------------------------------------

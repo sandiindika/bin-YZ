@@ -105,42 +105,50 @@ def _pageTextPreprocessing():
         ori_text = get_csv("./data/dataset/tweets.csv", delimiter= ";")
         # Buat DataFrame untuk menampung hasil pemrosesan teks
         pre_text = pd.DataFrame()
+        # Pemrosesan text cleaning
+        pre_text["text_cleaning"] = ori_text.iloc[:, 0].apply(text_cleaning)
+        # Simpan unique word untuk identifikasi lebih lanjut
+        write_unique_words(pre_text["text_cleaning"].values)
+        # Pemrosesan slang-word removal
+        pre_text["slang_removal"] = remv_slang(pre_text["text_cleaning"])
+        # Pemrosesan tokenization
+        pre_text["tokenization"] = pre_text["slang_removal"].apply(lambda x: word_tokenize(x))
+        with st.spinner("Please wait..."):
+            # Pemrosesan stemming
+            pre_text["stemming"] = stemming(pre_text["tokenization"])
+        # Pemrosesan stopword-removal
+        pre_text["stopword_removal"] = stopword_removal(pre_text["stemming"])
+        # Final Result
+        pre_text["final"] = pre_text["stopword_removal"].apply(lambda x: " ".join(x))
+        # View result
         with st.expander("**Original Tweets**", expanded= True):
             # Tampilkan DataFrame untuk teks tweet sebelum text cleaning
             st.dataframe(ori_text.iloc[:, 0], height= 500,
                          use_container_width= True, hide_index= True)
         with st.expander("**Text Cleaning**"):
-            # Pemrosesan text cleaning
-            pre_text["text_cleaning"] = ori_text.iloc[:, 0].apply(text_cleaning)
             # Tampilkan DataFrame untuk teks tweet setelah text cleaning
             st.dataframe(pre_text["text_cleaning"], height= 500,
                          use_container_width= True, hide_index= True)
-            # Simpan unique word untuk identifikasi lebih lanjut
-            write_unique_words(pre_text["text_cleaning"].values)
         with st.expander("**Slang-words Removal**"):
-            # Pemrosesan slang-word removal
-            pre_text["slang_removal"] = remv_slang(pre_text["text_cleaning"])
             # Tampilkan DataFrame untuk teks tweet setelah slang-word removal
             st.dataframe(pre_text["slang_removal"], height= 500,
                          use_container_width= True, hide_index= True)
         with st.expander("**Tokenization**"):
-            # Pemrosesan tokenization
-            pre_text["tokenization"] = pre_text["slang_removal"].apply(lambda \
-                                        x: word_tokenize(x))
             # Tampilkan DataFrame untuk teks tweet setelah tokenisasi
             st.dataframe(pre_text["tokenization"], height= 500,
                          use_container_width= True, hide_index= True)
         with st.expander("**Stemming/Lemmatization**"):
-            with st.spinner("Please wait..."):
-                # Pemrosesan stemming
-                pre_text["stemming"] = stemming(pre_text["tokenization"])
             # Tampilkan DataFrame untuk teks tweet setelah proses stemming
             st.dataframe(pre_text["stemming"], height= 500,
                          use_container_width= True, hide_index= True)
         with st.expander("**Stopword Removal**"):
-            ms_20()
+            # Tampilkan DataFrame untuk teks tweet setelah proses stopword removal
+            st.dataframe(pre_text["stopword_removal"], height= 500,
+                         use_container_width= True, hide_index= True)
         with st.expander("**Final Result**"):
-            ms_20()
+            # Tampilkan DataFrame untuk teks tweet hasil semua text preprocessing
+            st.dataframe(pre_text["final"], height= 500,
+                         use_container_width= True, hide_index= True)
 
     except Exception as e:
         _exceptionMessage(e)
