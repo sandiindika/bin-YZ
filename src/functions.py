@@ -2,10 +2,12 @@
 
 import streamlit as st
 
-import os, re, csv, pickle
+import os, re, csv, pickle, itertools
 from collections import defaultdict
 
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import emoji, swifter
 from PIL import Image
 
@@ -452,7 +454,7 @@ def feature_extraction(features, labels):
     """
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(features, labels,
-        test_size= 0.2, random_state= 42)
+        test_size= 0.2, random_state= 42, stratify= labels)
     
     # Inisialiasai vectorizer TF-IDF
     vectorizer = TfidfVectorizer()
@@ -514,4 +516,33 @@ def model_trained(features, labels):
         pickle.dump(model, file)
 
     return model
+
+def plot_confusion_matrix(cm, classes, normalize= False,
+    title= "Confusion matrix", cmap= plt.cm.Blues):
+    """Plot confusion matrix
+    """
+    fig = plt.figure(figsize= (10, 10))
+    plt.imshow(cm, interpolation= "nearest", cmap= cmap)
+    plt.title(title, fontsize= 16)
+    plt.colorbar()
+
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation= 45, fontsize= 12)
+    plt.yticks(tick_marks, classes, fontsize= 12)
+
+    if normalize:
+        cm = cm.astype("float") / cm.sum(axis= 1)[:, np.newaxis]
+        st.write("Normalized confusion matrix")
+    else:
+        st.write("Confusion matrix, without normalization")
+
+    thresh = cm.max() / 2
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j], horizontalalignment= "center", fontsize= 12,
+                 color= "white" if cm[i, j] > thresh else "black")
+        
+    plt.tight_layout()
+    plt.ylabel("True label", fontsize= 12)
+    plt.xlabel("Predicted label", fontsize= 12)
+    st.pyplot(fig)
 #-------------------------------------------------------------------------------

@@ -208,6 +208,65 @@ def _pageAnalisis():
         show_title("Analisis Sentimen Tweets")
         show_caption("Metode Logistic Regression", division= True)
         ms_40()
+        # Ambil DataFrame untuk proses analisis
+        with open("./data/temp/train_vectors.pickle", "rb") as file:
+            train_vectors = pickle.load(file)
+        with open("./data/temp/test_vectors.pickle", "rb") as file:
+            test_vectors = pickle.load(file)
+        with open("./data/temp/X_train.pickle", "rb") as file:
+            X_train = pickle.load(file)
+        with open("./data/temp/X_test.pickle", "rb") as file:
+            X_test = pickle.load(file)
+        with open("./data/temp/y_train.pickle", "rb") as file:
+            y_train = pickle.load(file)
+        with open("./data/temp/y_test.pickle", "rb") as file:
+            y_test = pickle.load(file)
+        # Training model Regresi Logistik
+        model = model_trained(train_vectors, y_train)
+        # Lakukan prediksi pada data test dengan model yang telah dilatih
+        y_pred = model.predict(test_vectors)
+        # Buat DataFrame yang menggabungkan semua elemen data untuk ditampilkan
+        test_df = pd.DataFrame({
+            "tweets": X_test,
+            "sentimen": y_test,
+            "prediksi": y_pred
+        })
+        train_df = pd.DataFrame({
+            "tweets": X_train,
+            "sentimen": y_train
+        })
+        # Tampilkan hasil analisis
+        show_caption("Hasil Analisis")
+        st.dataframe(test_df, use_container_width= True, hide_index= True)
+        # Hitung nilai akurasi
+        accuracy = accuracy_score(y_true= y_test, y_pred= y_pred)
+        # Tampilkan nilai akurasi
+        st.success(f"Nilai Akurasi: {accuracy * 100:.2f}%")
+        # Hitung jumlah data di setiap kelas
+        positif = test_df["sentimen"].value_counts()[0]
+        negatif = test_df["sentimen"].value_counts()[1]
+        positif += train_df["sentimen"].value_counts()[0]
+        negatif += train_df["sentimen"].value_counts()[1]
+        # Tampilkan jumlah data di setiap kelas
+        st.info(f"""
+                **Jumlah data masing-masing kelas**\n
+                Label positif: {positif}\n
+                Label negatif: {negatif}
+        """)
+        ms_20()
+        # Buat classification report untuk melihat hasil
+        cr = classification_report(y_true= y_test, y_pred= y_pred,
+                                   output_dict= True)
+        # Tampilkan classification report
+        show_caption("Classification Report")
+        st.dataframe(pd.DataFrame(cr).transpose(), use_container_width= True)
+        ms_20()
+        # Tampilkan confusion matrix
+        cm = confusion_matrix(y_true= y_test, y_pred= y_pred)
+        # Tampilkan confusion matrix
+        show_caption("Confusion Matrix")
+        with ml_center():
+            plot_confusion_matrix(cm, classes= np.unique(y_test))
     except Exception as e:
         _exceptionMessage(e)
 
