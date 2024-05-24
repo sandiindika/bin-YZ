@@ -361,6 +361,20 @@ def stemming(data):
     return data.swifter.apply(get_stemmed_term)
 
 def stopword_removal(data):
+    """
+    Menghapus kata-kata stopword dari data.
+
+    Parameters
+    ----------
+    data : pandas.Series
+        Data yang berisi teks yang akan diproses, di mana setiap elemen adalah 
+        list dari kata-kata.
+
+    Returns
+    -------
+    pandas.Series
+        Data yang berisi teks yang sudah dihapus stopword-nya.
+    """
     nltk_corpus = stopwords.words("indonesian")
     self_corpus = pd.read_csv("./data/corpus/stopwords.txt",
                               names= ["stopword"], header= None)
@@ -369,8 +383,21 @@ def stopword_removal(data):
     
     corpus = set(nltk_corpus)
 
-    def stopwords_removal(words):
+    def removes(words):
+        """
+        Menghapus stopword dari list kata-kata.
+
+        Parameters
+        ----------
+        words : list of str
+            List dari kata-kata yang akan diproses.
+
+        Returns
+        -------
+        list of str
+            List dari kata-kata yang sudah dihapus stopword-nya.
+        """
         return [word for word in words if word not in corpus]
     
-    return data.apply(stopwords_removal)
+    return data.apply(removes)
 #-------------------------------------------------------------------------------

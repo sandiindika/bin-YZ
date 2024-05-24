@@ -149,7 +149,8 @@ def _pageTextPreprocessing():
             # Tampilkan DataFrame untuk teks tweet hasil semua text preprocessing
             st.dataframe(pre_text["final"], height= 500,
                          use_container_width= True, hide_index= True)
-
+        # Simpan DataFrame hasil text preprocessing
+        pre_text.to_csv("./data/dataset/prepros_result.csv", index= False)
     except Exception as e:
         _exceptionMessage(e)
 #-------------------------------------------------------------------------------
