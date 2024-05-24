@@ -2,19 +2,24 @@
 
 import streamlit as st
 
-import os, re, csv
+import os, re, csv, pickle
 from collections import defaultdict
 
 import pandas as pd
-import emoji
-import swifter
+import emoji, swifter
 from PIL import Image
 
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+
+from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import classification_report
 
 nltk.download("punkt")
 nltk.download("stopwords")
@@ -400,4 +405,113 @@ def stopword_removal(data):
         return [word for word in words if word not in corpus]
     
     return data.apply(removes)
+
+def feature_extraction(features, labels):
+    """Ekstraksi Fitur dengan TF-IDF
+
+    Membagi data input ke dalam set pelatihan dan pengujian, melakukan
+    vektorisasi TF-IDF pada teks, dan menyimpan set data dan vektor yang
+    dihasilkan ke dalam lokal disk.
+
+    Fungsi ini melakukan langkah-langkah berikut ini:
+    1. Membagi data ke dalam set pelatihan dan pengujian menggunakan
+    pembagian 80:20.
+    2. Menginisialisasi vektorizer TF-IDF dan menyesuaikannya dengan data
+    pelatihan, lalu mentransformasikan data pelatihan dan pengujian.
+    3. Menyimpan set data yang telah dipecah (X_tran, X_test, y_train, y_test)
+    ke direktori `./data/temp` sebagai file pickle.
+    4. Menyimpan vektor TF-IDF (train_vectors, test_vectors) ke direktori
+    `./data/temp` sebagai file pickle.
+
+    Parameters
+    ----------
+    features : ndarray or shape (n_samples, 1, n_documents)
+        Fitur input, biasanya berupa daftar dokumen teks.
+    
+    labels : ndarray or shape (n_samples, 1, n_outputs)
+        Label target yang sesuai dengan fitur input.
+
+    Returns
+    -------
+    train_vectors : scipy.sparse.csr.csr_matrix
+        Representasi vektorisasi TF-IDF pada teks pelatihan.
+
+    test_vectors : scipy.sparse.csr.csr_matrix
+        Representasi vektorisasi TF-IDF pada teks pengujian.
+
+    vectorizer : TfidfVectorizer
+        Vektorizer TF-IDF yang digunakan.
+
+    Examples
+    --------
+    >>> train_vectors, test_vectors = feature_extraction(features, labels)
+
+    Note::
+        Fungsi ini membuat direktori `./data/temp` untuk menyimpan file pickle.
+        Pastikan direktori tersebut tersedia atau dapat dibuat.
+    """
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(features, labels,
+        test_size= 0.2, random_state= 42)
+    
+    # Inisialiasai vectorizer TF-IDF
+    vectorizer = TfidfVectorizer()
+    train_vectors = vectorizer.fit_transform(X_train)
+    test_vectors = vectorizer.transform(X_test)
+
+    # Simpan hasil splitting
+    mk_dir("./data/temp")
+    with open("./data/temp/X_train.pickle", "wb") as file:
+        pickle.dump(X_train, file)
+    with open("./data/temp/X_test.pickle", "wb") as file:
+        pickle.dump(X_test, file)
+    with open("./data/temp/y_train.pickle", "wb") as file:
+        pickle.dump(y_train, file)
+    with open("./data/temp/y_test.pickle", "wb") as file:
+        pickle.dump(y_test, file)
+
+    # Simpan hasil TF-IDF
+    with open("./data/temp/train_vectors.pickle", "wb") as file:
+        pickle.dump(train_vectors, file)
+    with open("./data/temp/test_vectors.pickle", "wb") as file:
+        pickle.dump(test_vectors, file)
+
+    return train_vectors, test_vectors, vectorizer
+
+def model_trained(features, labels):
+    """Training Model
+
+    Menginisialisasi dan melatih model Regresi Logistik pada fitur dan label
+    yang diberikan, dan menyimpan model yang telah dilatih ke dalam lokal disk. 
+
+    Parameters
+    ----------
+    features : ndarray or shape (n_samples, 1, n_documents)
+        Fitur input, biasanya berupa daftar dokumen teks.
+
+    labels : ndarray or shape (n_samples, 1, n_outputs)
+        Label target yang sesuai dengan fitur input.
+
+    Returns
+    -------
+    model : sklearn.linear_model.LogisticRegression
+        Model yang telah dilatih.
+
+    Examples
+    --------
+    >>> model = model_trained(features, labels)
+
+    Note::
+        Fungsi ini membuat direktori `./data/temp` untuk menyimpan file pickle.
+        Pastikan direktori tersebut tersedia atau dapat dibuat.
+    """
+    # Inisialisasi dan training model
+    model = LogisticRegression()
+    model.fit(features, labels)
+    # Simpai trained model
+    mk_dir("./data/temp") # Cek ketersediaan path folder
+    with open("./data/temp/model.pickle", "wb") as file:
+        pickle.dump(model, file)
+
+    return model
 #-------------------------------------------------------------------------------

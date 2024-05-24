@@ -32,8 +32,10 @@ with open("./css/style.css") as f:
 
 # Params setting
 message = True
-menu_ = ["Beranda", "Data Tweets", "Pemrosesan Teks", "Pembobotan Teks"]
-icons_ = ["house", "database", "code-slash", "layout-text-sidebar"]
+menu_ = ["Beranda", "Data Tweets", "Pemrosesan Teks", "Pembobotan Teks",
+         "Analisis"]
+icons_ = ["house", "database", "code-slash", "layout-text-sidebar",
+          "bar-chart"]
 
 # Exception message function
 def _exceptionMessage(e):
@@ -90,7 +92,7 @@ def _pageDataTweets():
     except Exception as e:
         _exceptionMessage(e)
 
-# Halaman Pemrosesan Teks
+# Halaman pemrosesan teks
 def _pageTextPreprocessing():
     """Page pemrosesan teks
 
@@ -153,6 +155,62 @@ def _pageTextPreprocessing():
         pre_text.to_csv("./data/dataset/prepros_result.csv", index= False)
     except Exception as e:
         _exceptionMessage(e)
+
+# Halaman ekstraksi fitur
+def _pageFeaturesExtraction():
+    """Page ekstraksi fitur
+
+    Halaman ini akan menampilkan data tweets sebelum dan setelah dilakukan
+    pembobotan kata.
+    """
+    try:
+        ms_20()
+        show_title("Pembobotan Teks", division= True)
+        ms_40()
+        # Dapatkan file .csv untuk hasil pemrosesan teks dan data sentimen
+        # setiap dokumen
+        tweets = get_csv("./data/dataset/prepros_result.csv", usecols= ["final"])
+        labels = get_csv("./data/dataset/tweets.csv", delimiter= ";",
+                         usecols= ["sentimen"])
+        # Splitting layout
+        left, right = ml_split()
+        with left:
+            tweets.columns = ["tweets"] # Ubah nama kolom data
+            # Gabungkan 2 DataFrame
+            data = pd.concat([tweets, labels], axis= 1)
+            data = data.dropna()
+            # Lakukan splitting data dan pembobotan untuk proses analisis
+            train_vectors, test_vectors, vectorizer = feature_extraction(
+                data["tweets"].values, data["sentimen"].values)
+            # Tampilkan DataFrame
+            with open("./data/temp/X_train.pickle", "rb") as file:
+                X_train = pickle.load(file)
+            show_caption("Original Tweets")
+            st.dataframe(X_train, use_container_width= True, hide_index= True)
+        with right:
+            # Konversi train_vectors dan test_vectors ke DataFrame
+            train_df = pd.DataFrame(train_vectors.toarray(),
+                                    columns= vectorizer.get_feature_names_out())
+            test_df = pd.DataFrame(test_vectors.toarray(),
+                                   columns= vectorizer.get_feature_names_out())
+            # Tampilkan hasil pembobotan teks
+            show_caption("Hasil Pembobotan Kata")
+            st.dataframe(train_df, use_container_width= True, hide_index= True)
+    except Exception as e:
+        _exceptionMessage(e)
+
+# Halaman analisis
+def _pageAnalisis():
+    """Page Analisis
+    """
+    try:
+        ms_20()
+        show_title("Analisis Sentimen Tweets")
+        show_caption("Metode Logistic Regression", division= True)
+        ms_40()
+    except Exception as e:
+        _exceptionMessage(e)
+
 #-------------------------------------------------------------------------------
 # Body
 with st.container():
@@ -179,3 +237,7 @@ with st.container():
         _pageDataTweets()
     elif selected == menu_[2]:
         _pageTextPreprocessing()
+    elif selected == menu_[3]:
+        _pageFeaturesExtraction()
+    elif selected == menu_[4]:
+        _pageAnalisis()
