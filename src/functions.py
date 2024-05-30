@@ -454,7 +454,7 @@ def feature_extraction(features, labels):
     """
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(features, labels,
-        test_size= 0.2, random_state= 42, stratify= labels)
+        test_size= 0.3, random_state= 42, stratify= labels)
     
     # Inisialiasai vectorizer TF-IDF
     vectorizer = TfidfVectorizer()
@@ -480,7 +480,7 @@ def feature_extraction(features, labels):
 
     return train_vectors, test_vectors, vectorizer
 
-def model_trained(features, labels):
+def model_trained(features, labels, **kwargs):
     """Training Model
 
     Menginisialisasi dan melatih model Regresi Logistik pada fitur dan label
@@ -508,7 +508,7 @@ def model_trained(features, labels):
         Pastikan direktori tersebut tersedia atau dapat dibuat.
     """
     # Inisialisasi dan training model
-    model = LogisticRegression()
+    model = LogisticRegression(**kwargs)
     model.fit(features, labels)
     # Simpai trained model
     mk_dir("./data/temp") # Cek ketersediaan path folder

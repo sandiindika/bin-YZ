@@ -222,7 +222,7 @@ def _pageAnalisis():
         with open("./data/temp/y_test.pickle", "rb") as file:
             y_test = pickle.load(file)
         # Training model Regresi Logistik
-        model = model_trained(train_vectors, y_train)
+        model = model_trained(train_vectors, y_train, C= 0.01)
         # Lakukan prediksi pada data test dengan model yang telah dilatih
         y_pred = model.predict(test_vectors)
         # Buat DataFrame yang menggabungkan semua elemen data untuk ditampilkan
