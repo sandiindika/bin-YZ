@@ -33,7 +33,7 @@ with open("./css/style.css") as f:
 # Params setting
 message = True
 menu_ = ["Beranda", "Data Tweets", "Pemrosesan Teks", "Pembobotan Teks",
-         "Analisis"]
+         "Analisis", "Prediksi"]
 icons_ = ["house", "database", "code-slash", "layout-text-sidebar",
           "bar-chart"]
 
@@ -270,6 +270,24 @@ def _pageAnalisis():
     except Exception as e:
         _exceptionMessage(e)
 
+def _pagePrediksi():
+    """Page Prediksi
+    """
+    try:
+        ms_20()
+        show_title("Prediksi Sentimen", division= True)
+        ms_40()
+        cek = st.text_input("Masukkan Tweet", key= "tweet")
+
+        if st.button("Prediksi"):
+            if len(cek) != 0:
+                result = np.random.choice(["Positif", "Negatif"])
+                st.success(result)
+            else:
+                st.warning("Input tidak valid")
+    except Exception as e:
+        _exceptionMessage(e)
+
 #-------------------------------------------------------------------------------
 # Body
 with st.container():
@@ -300,3 +318,5 @@ with st.container():
         _pageFeaturesExtraction()
     elif selected == menu_[4]:
         _pageAnalisis()
+    elif selected == menu_[5]:
+        _pagePrediksi()
